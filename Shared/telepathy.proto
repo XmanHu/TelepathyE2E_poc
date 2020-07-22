@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "Telepathy";
+
+package Telepathy;
+
+import "google/protobuf/empty.proto";
+
+// The greeting service definition.
+service Frontend {
+  rpc SendTask (InnerRequest) returns (google.protobuf.Empty);
+  rpc GetResult (google.protobuf.Empty) returns (InnerResponse);
+}
+
+service Backend
+{
+	rpc dispatch (InnerRequest) returns (InnerResponse);
+}
+
+// The request message containing the user's name.
+message InnerRequest {
+  string serviceName = 1;
+  string methodName = 2;
+  bytes msg = 3;
+}
+
+// The response message containing the greetings.
+message InnerResponse {
+  bytes msg = 1;
+}
