@@ -17,6 +17,7 @@ namespace EchoClient
             //await NormalE2E();
             //await StreamE2E();
             await StreamPerfTest();
+
         }
 
         static async Task NormalE2E()
@@ -24,7 +25,7 @@ namespace EchoClient
             string uri = "https://localhost:8008";
             var client = new SessionClient(uri);
 
-            await client.SendTask("echo.Echoer", "Echo", new EchoRequest() { Name = "Jialiang" });
+            await client.SendTask(Echoer.Descriptor.FindMethodByName("Echo"), new EchoRequest() { Name = "Jialiang" });
 
             var result = await client.GetResult<EchoReply>();
 
@@ -38,7 +39,7 @@ namespace EchoClient
 
             var call = client.CreateRequestStreamCall();
 
-            await call.SendTaskStream("echo.Echoer", "Echo", new EchoRequest() {Name = "Jialiang Stream"});
+            await call.SendTaskStream(Echoer.Descriptor.FindMethodByName("Echo"), new EchoRequest() {Name = "Jialiang Stream"});
             await call.EndOfRequest();
 
             var resultCall = client.CreateResponseStreamCall<EchoReply>();
@@ -55,12 +56,12 @@ namespace EchoClient
             var client = new SessionClient(uri, 100);
             var sw = new Stopwatch();
             Task[] tasks = new Task[n - 1];
-            await client.SendTask("echo.Echoer", "Echo", new EchoRequest() { Name = "Jialiang" });
+            await client.SendTask(Echoer.Descriptor.FindMethodByName("Echo"), new EchoRequest() { Name = "Jialiang" });
             sw.Start();
 
             for (int i = 0; i < n - 1; i++)
             {
-                tasks[i] = client.SendTask("echo.Echoer", "Echo", new EchoRequest() { Name = "Jialiang" });
+                tasks[i] = client.SendTask(Echoer.Descriptor.FindMethodByName("Echo"), new EchoRequest() { Name = "Jialiang" });
             }
 
             await Task.WhenAll(tasks);
@@ -94,10 +95,9 @@ namespace EchoClient
             var call = client.CreateRequestStreamCall();
 
             sw.Start();
-
             for (int i = 0; i < n; i++)
             {
-                await call.SendTaskStream("echo.Echoer", "Echo", new EchoRequest() { Name = "Jialiang Stream" + i});
+                await call.SendTaskStream(Echoer.Descriptor.FindMethodByName("Echo"), new EchoRequest() { Name = "Jialiang Stream" + i});
             }
 
             await call.EndOfRequest();

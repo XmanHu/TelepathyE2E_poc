@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
+using Google.Protobuf.Reflection;
 using Grpc.Core;
 
 namespace SessionAPI
@@ -35,10 +36,10 @@ namespace SessionAPI
             }
         }
 
-        public async Task SendTask(string serviceName, string methodName, IMessage request)
+        public async Task SendTask(MethodDescriptor methodDescriptor, IMessage request)
         {
             var inner = new InnerRequest
-                {ServiceName = serviceName, MethodName = methodName, Msg = request.ToByteString()};
+                {ServiceName = methodDescriptor.Service.FullName, MethodName = methodDescriptor.Name, Msg = request.ToByteString()};
             await GetClient().SendTaskAsync(inner);
         }
 
@@ -77,10 +78,10 @@ namespace SessionAPI
             call = client.SendTaskStream();
         }
 
-        public async Task SendTaskStream(string serviceName, string methodName, IMessage request)
+        public async Task SendTaskStream(MethodDescriptor methodDescriptor, IMessage request)
         {
             var inner = new InnerRequest
-                { ServiceName = serviceName, MethodName = methodName, Msg = request.ToByteString() };
+                { ServiceName = methodDescriptor.Service.FullName, MethodName = methodDescriptor.Name, Msg = request.ToByteString() };
             await call.RequestStream.WriteAsync(inner);
         }
 

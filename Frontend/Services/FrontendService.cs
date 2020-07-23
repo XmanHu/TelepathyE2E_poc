@@ -27,13 +27,13 @@ namespace Frontend
             backendClient = new Backend.BackendClient(channel);
         }
 
-        public override async Task<Empty> SendTask(InnerRequest request, ServerCallContext context)
+        public override Task<Empty> SendTask(InnerRequest request, ServerCallContext context)
         {
             Task.Run(async () =>
             {
                 ResponseQueue.queue.Enqueue(await backendClient.dispatchAsync(request));
             });
-            return new Empty();
+            return Task.FromResult(new Empty());
         }
 
         public override async Task<InnerResponse> GetResult(Empty request, ServerCallContext context)
