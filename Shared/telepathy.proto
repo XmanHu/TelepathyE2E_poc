@@ -6,10 +6,11 @@ package Telepathy;
 
 import "google/protobuf/empty.proto";
 
-// The greeting service definition.
 service Frontend {
   rpc SendTask (InnerRequest) returns (google.protobuf.Empty);
   rpc GetResult (google.protobuf.Empty) returns (InnerResponse);
+  rpc SendTaskStream (stream InnerRequest) returns(google.protobuf.Empty);
+  rpc GetResultStream (AskNumber) returns (stream InnerResponse);
 }
 
 service Backend
@@ -17,14 +18,17 @@ service Backend
 	rpc dispatch (InnerRequest) returns (InnerResponse);
 }
 
-// The request message containing the user's name.
+message AskNumber
+{
+  int32 number = 1;
+}
+
 message InnerRequest {
   string serviceName = 1;
   string methodName = 2;
   bytes msg = 3;
 }
 
-// The response message containing the greetings.
 message InnerResponse {
   bytes msg = 1;
 }

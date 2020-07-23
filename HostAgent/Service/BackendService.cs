@@ -23,7 +23,7 @@ namespace HostAgent.Service
 
         public override async Task<InnerResponse> dispatch(InnerRequest innerRequest, ServerCallContext context)
         {
-            Console.WriteLine(innerRequest.ServiceName + " " + innerRequest.MethodName);
+            //Console.WriteLine(innerRequest.ServiceName + " " + innerRequest.MethodName);
             try
             {
                 var callInvoker = channel.CreateCallInvoker();

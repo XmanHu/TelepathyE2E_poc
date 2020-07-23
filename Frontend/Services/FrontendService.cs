@@ -1,5 +1,7 @@
 
 
+using System.Threading;
+
 namespace Frontend
 {
 
@@ -29,8 +31,7 @@ namespace Frontend
         {
             Task.Run(async () =>
             {
-                var result = await backendClient.dispatchAsync(request);
-                ResponseQueue.queue.Enqueue(result);
+                ResponseQueue.queue.Enqueue(await backendClient.dispatchAsync(request));
             });
             return new Empty();
         }
@@ -48,6 +49,36 @@ namespace Frontend
             }
 
             return new InnerResponse();
+        }
+
+        public override async Task<Empty> SendTaskStream(IAsyncStreamReader<InnerRequest> requestStream, ServerCallContext context)
+        {
+            await foreach (var request in requestStream.ReadAllAsync())
+            {
+                Task.Run(async () =>
+                {
+                    ResponseQueue.queue.Enqueue(await backendClient.dispatchAsync(request));
+                });
+            }
+
+            return new Empty();
+        }
+
+        public override async Task GetResultStream(AskNumber request, IServerStreamWriter<InnerResponse> responseStream, ServerCallContext context)
+        {
+            int count = 0;
+            while (!context.CancellationToken.IsCancellationRequested && count < request.Number)
+            {
+                if (ResponseQueue.queue.TryDequeue(out var temp))
+                {
+                    count++;
+                    await responseStream.WriteAsync(temp);
+                }
+                else
+                {
+                    await Task.Delay(500);
+                }
+            }
         }
     }
 }
